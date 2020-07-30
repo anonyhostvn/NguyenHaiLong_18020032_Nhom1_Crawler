@@ -6,10 +6,10 @@ import json
 class BaomoiSpider(scrapy.Spider):
     name = 'baomoi'
     # allowed_domains = ['https://baomoi.com']
-    start_urls = ['https://baomoi.com']
+    start_urls = ['https://baomoi.com/tin-moi.epi']
     dataCrawled = []
     recentPage = 1
-    maxPage = 10
+    maxPage = 400
 
     def extractStoryHeading(self, div):
         for element in div:
@@ -41,15 +41,6 @@ class BaomoiSpider(scrapy.Spider):
         return None
 
     def parse(self, response):
-        print(self.recentPage)
-        if self.recentPage == self.maxPage:
-            f = open("tiki/spiders/output.json", "w+", encoding="utf-8")
-            f.writelines(json.dumps({
-                "total": len(self.dataCrawled),
-                "data": self.dataCrawled
-            }))
-            f.close()
-            yield None
 
         for singleA in response.css('.story'):
             [href, content] = self.extractStoryHeading(singleA.css('.story__heading'))
@@ -64,11 +55,18 @@ class BaomoiSpider(scrapy.Spider):
                 'thumb': thumb
             })
 
-        yield self.dataCrawled
         nextPage = self.getNextPageUrl(response.css('.pagination'))
         if nextPage is not None:
             self.recentPage += 1
             if self.recentPage <= self.maxPage:
                 yield scrapy.Request(response.urljoin(nextPage), callback=self.parse)
+
+        if self.recentPage == self.maxPage:
+            f = open("tiki/spiders/output.json", "w+", encoding="utf-8")
+            f.writelines(json.dumps({
+                "total": len(self.dataCrawled),
+                "data": self.dataCrawled
+            }))
+            f.close()
 
         pass
