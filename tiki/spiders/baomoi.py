@@ -2,6 +2,8 @@
 import scrapy
 import json
 
+#HOT 15
+#new 30
 
 class BaomoiSpider(scrapy.Spider):
     name = 'baomoi'
@@ -9,7 +11,7 @@ class BaomoiSpider(scrapy.Spider):
     start_urls = ['https://baomoi.com/tin-moi.epi']
     dataCrawled = []
     recentPage = 1
-    maxPage = 400
+    maxPage = 30
 
     def extractStoryHeading(self, div):
         for element in div:
