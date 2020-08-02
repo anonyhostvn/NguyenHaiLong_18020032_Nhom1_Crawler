@@ -2,6 +2,7 @@
 import scrapy
 import json
 import re
+from .model.news import News, DomainType
 
 # HOT 15
 # new 30
@@ -32,13 +33,15 @@ def extractMeta(div):
 
 class BaomoiSpider(scrapy.Spider):
     name = 'baomoi'
-    allowed_domains = ['baomoi.com']
+    allowed_domains = ['baomoi.com', 'zingnews.vn', 'suckhoedoisong.vn']
     start_urls = ['https://baomoi.com']
     data_crawled = []
+    news_data = []
     size = 0
     recent_page = 1
     max_page = 100
-    limit_size = 5000
+    limit_size = 100
+    find_command_redirect_regex = "window.location.replace\\(\"[http, https][\\w,\\W]+.[html, htm]\"\\);"
 
     def add_data_to_pool(self, new_post):
 
@@ -51,6 +54,30 @@ class BaomoiSpider(scrapy.Spider):
 
         self.size += 1
         self.data_crawled.append(new_post)
+
+    def zingnews_crawler(self, response):
+        data_object = News(response, DomainType.ZINGVN)
+        self.news_data.append(data_object.data)
+
+    def suckhoedoisong_crawler(self, response):
+        data_object = News(response, DomainType.SUCKHOEDOISONG)
+        self.news_data.append(data_object.data)
+
+    def redirect_link(self, response):
+        for script_tag in response.css('script'):
+            for element in re.findall(self.find_command_redirect_regex, script_tag.get()):
+                for link in re.findall("\"[http, https][\\w,\\W]+.[html, htm]\"", element):
+
+                    link_extracted = link[1:-1]
+                    domain = re.findall("(\\w+).[com,vn]", link_extracted)[0]
+
+                    print(link_extracted)
+                    print(domain)
+
+                    if domain == 'zingnews':
+                        yield scrapy.Request(link_extracted, callback=self.zingnews_crawler)
+                    elif domain == 'suckhoedoisong':
+                        yield scrapy.Request(link_extracted, callback=self.suckhoedoisong_crawler)
 
     def parse(self, response):
 
@@ -83,11 +110,16 @@ class BaomoiSpider(scrapy.Spider):
                 break
 
         if len(self.data_crawled) >= self.limit_size:
+
             f = open("tiki/spiders/output.json", "w+", encoding="utf-8")
             f.writelines(json.dumps({
                 "total": len(self.data_crawled),
                 "data": self.data_crawled
             }))
             f.close()
+
+            for item in self.data_crawled:
+                yield scrapy.Request(item['href'], callback=self.redirect_link)
+            self.data_crawled.clear()
 
         pass
