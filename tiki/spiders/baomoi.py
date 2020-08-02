@@ -1,73 +1,92 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import json
+import re
 
-#HOT 15
-#new 30
+# HOT 15
+# new 30
+
+
+def extractStoryHeading(div):
+    for element in div:
+        return [element.css('a').attrib['href'], element.css('a::text').get()]
+    return ['', '']
+
+
+def extractThumbnail(div):
+    for element in div:
+        res = [e.attrib['src'] for e in element.css('img')]
+        if len(res) == 1:
+            return res[0]
+    return ''
+
+
+def extractMeta(div):
+    for elementDiv in div:
+        res = [e.attrib['href'] for e in elementDiv.css('.source')] \
+              + [e.attrib['datetime'] for e in elementDiv.css('time')]
+        if len(res) == 2:
+            return res
+    return ['', '']
+
 
 class BaomoiSpider(scrapy.Spider):
     name = 'baomoi'
-    # allowed_domains = ['https://baomoi.com']
-    start_urls = ['https://baomoi.com/tin-moi.epi']
-    dataCrawled = []
-    recentPage = 1
-    maxPage = 30
+    allowed_domains = ['baomoi.com']
+    start_urls = ['https://baomoi.com']
+    data_crawled = []
+    size = 0
+    recent_page = 1
+    max_page = 100
+    limit_size = 5000
 
-    def extractStoryHeading(self, div):
-        for element in div:
-            return [element.css('a').attrib['href'], element.css('a::text').get()]
-        return ['', '']
+    def add_data_to_pool(self, new_post):
 
-    def extractThumbnail(self, div):
-        for element in div:
-            res = [e.attrib['src'] for e in element.css('img')]
-            if len(res) == 1:
-                return res[0]
-        return ''
+        if not bool(re.match("[\\W,\\w]+/r/[\\W,\\w]+", new_post['href'])):
+            return
 
-    def extractMeta(self, div):
-        for elementDiv in div:
-            res = [e.attrib['href'] for e in elementDiv.css('.source')] \
-                  + [e.attrib['datetime'] for e in elementDiv.css('time')]
-            if len(res) == 2:
-                return res
-        return ['', '']
+        for oldPost in self.data_crawled:
+            if oldPost['href'] == new_post['href']:
+                return
 
-    def getNextPageUrl(self, div):
-        for elementDiv in div:
-            listBtn = elementDiv.css('.btn')
-            if len(listBtn) == 0:
-                return None
-            else:
-                return listBtn[-1:].attrib['href']
-        return None
+        self.size += 1
+        self.data_crawled.append(new_post)
 
     def parse(self, response):
 
+        if self.size >= self.limit_size:
+            return
+
         for singleA in response.css('.story'):
-            [href, content] = self.extractStoryHeading(singleA.css('.story__heading'))
-            [source, time] = self.extractMeta(singleA.css('.story__meta'))
-            thumb = self.extractThumbnail(singleA.css('.story__thumb'))
+            if self.size < self.limit_size:
+                [href, content] = extractStoryHeading(singleA.css('.story__heading'))
+                [source, time] = extractMeta(singleA.css('.story__meta'))
+                thumb = extractThumbnail(singleA.css('.story__thumb'))
 
-            self.dataCrawled.append({
-                'href': response.urljoin(href),
-                'content': content,
-                'source': response.urljoin(source),
-                'time': time,
-                'thumb': thumb
-            })
+                self.add_data_to_pool({
+                    'href': response.urljoin(href),
+                    'content': content,
+                    'source': response.urljoin(source),
+                    'time': time,
+                    'thumb': thumb
+                })
+            else:
+                break
 
-        nextPage = self.getNextPageUrl(response.css('.pagination'))
-        if nextPage is not None:
-            self.recentPage += 1
-            if self.recentPage <= self.maxPage:
-                yield scrapy.Request(response.urljoin(nextPage), callback=self.parse)
+        print(self.size)
 
-        if self.recentPage == self.maxPage:
+        for a_div in response.css('a'):
+            if self.size < self.limit_size:
+                next_page = a_div.attrib['href']
+                yield scrapy.Request(response.urljoin(next_page), callback=self.parse)
+            else:
+                break
+
+        if len(self.data_crawled) >= self.limit_size:
             f = open("tiki/spiders/output.json", "w+", encoding="utf-8")
             f.writelines(json.dumps({
-                "total": len(self.dataCrawled),
-                "data": self.dataCrawled
+                "total": len(self.data_crawled),
+                "data": self.data_crawled
             }))
             f.close()
 
