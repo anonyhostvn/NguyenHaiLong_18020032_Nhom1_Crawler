@@ -33,14 +33,24 @@ def extractMeta(div):
 
 class BaomoiSpider(scrapy.Spider):
     name = 'baomoi'
-    allowed_domains = ['baomoi.com', 'zingnews.vn', 'suckhoedoisong.vn']
+    allowed_domains = [
+        'baomoi.com',
+        'zingnews.vn',
+        'suckhoedoisong.vn',
+        'nguoiduatin.vn',
+        'vietnamnet.vn',
+        'nld.com.vn',
+        'plo.vn',
+        'baotintuc.vn',
+        'baoquocte.vn'
+    ]
     start_urls = ['https://baomoi.com']
     data_crawled = []
     news_data = []
     size = 0
     recent_page = 1
     max_page = 100
-    limit_size = 100
+    limit_size = 10000
     find_command_redirect_regex = "window.location.replace\\(\"[http, https][\\w,\\W]+.[html, htm]\"\\);"
 
     def add_data_to_pool(self, new_post):
@@ -63,6 +73,30 @@ class BaomoiSpider(scrapy.Spider):
         data_object = News(response, DomainType.SUCKHOEDOISONG)
         self.news_data.append(data_object.data)
 
+    def nguoiduatin_crawler(self, response):
+        data_object = News(response, DomainType.NGUOIDUATIN)
+        self.news_data.append(data_object.data)
+
+    def vietnamnet_crawler(self, response):
+        data_object = News(response, DomainType.VIETNAMNET)
+        self.news_data.append(data_object.data)
+
+    def nld_crawler(self, response):
+        data_object = News(response, DomainType.NLD)
+        self.news_data.append(data_object.data)
+
+    def plo_crawler(self, response):
+        data_object = News(response, DomainType.PLO)
+        self.news_data.append(data_object.data)
+
+    def baotintuc_crawler(self, response):
+        data_object = News(response, DomainType.BAOTINTUC)
+        self.news_data.append(data_object.data)
+
+    def baoquocte_crawler(self, response):
+        data_object = News(response, DomainType.BAOQUOCTE)
+        self.news_data.append(data_object.data)
+
     def redirect_link(self, response):
         for script_tag in response.css('script'):
             for element in re.findall(self.find_command_redirect_regex, script_tag.get()):
@@ -74,10 +108,34 @@ class BaomoiSpider(scrapy.Spider):
                     print(link_extracted)
                     print(domain)
 
+                    print('news data size : ' + str(len(self.news_data)))
+
+                    if len(self.news_data) >= 100:
+                        f = open("tiki/spiders/news_DB.json", "w+", encoding="utf-8")
+                        f.writelines(json.dumps({
+                            "total": len(self.news_data),
+                            "data": self.news_data
+                        }))
+                        f.close()
+                        break
+
                     if domain == 'zingnews':
                         yield scrapy.Request(link_extracted, callback=self.zingnews_crawler)
                     elif domain == 'suckhoedoisong':
                         yield scrapy.Request(link_extracted, callback=self.suckhoedoisong_crawler)
+                    elif domain == 'nguoiduatin':
+                        headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:48.0) Gecko/20100101 Firefox/48.0'}
+                        yield scrapy.Request(link_extracted, callback=self.nguoiduatin_crawler, headers=headers)
+                    elif domain == 'vietnamnet':
+                        yield scrapy.Request(link_extracted, callback=self.vietnamnet_crawler)
+                    elif domain == 'nld':
+                        yield scrapy.Request(link_extracted, callback=self.nld_crawler)
+                    elif domain == 'plo':
+                        yield scrapy.Request(link_extracted, callback=self.plo_crawler)
+                    elif domain == 'baotintuc':
+                        yield scrapy.Request(link_extracted, callback=self.baotintuc_crawler)
+                    elif domain == 'baoquocte':
+                        yield scrapy.Request(link_extracted, callback=self.baoquocte_crawler)
 
     def parse(self, response):
 
@@ -100,7 +158,7 @@ class BaomoiSpider(scrapy.Spider):
             else:
                 break
 
-        print(self.size)
+        print('header data size : ' + str(self.size))
 
         for a_div in response.css('a'):
             if self.size < self.limit_size:
