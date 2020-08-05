@@ -9,4 +9,7 @@ class DomainType(Enum):
     NLD = 5,
     PLO = 6,
     BAOTINTUC = 7,
-    BAOQUOCTE = 8
+    BAOQUOCTE = 8,
+    BAOGIAOTHONG = 9,
+    SAOSTAR = 10,
+    KIENTHUC = 11

@@ -138,6 +138,56 @@ class News:
         for tag in response.css('.boxTags .tagsCould li a ::text'):
             self.data['tag'].append(tag.get())
 
+    def baoquocte_crawler(self, response):
+        for title in response.css('.titleDetailNews ::text'):
+            self.data['title'] = title.get()
+        for time_publish in response.css('.inforAuthor .tg .dateUp .format_time ::text'):
+            self.data['time_publish'] = time_publish.get()
+        for summary in response.css('.viewsDtail .padB10 .f-16 strong ::text'):
+            self.data['summary'] = summary.get()
+        for body in response.css('.viewsDtail .viewsDtailContent'):
+            self.data['body'] = body.get()
+        for author in response.css('.inforAuthor .tg .clorOr ::text'):
+            self.data['author'] = author.get()
+        for tag in response.css('.boxTags .tagsCould li a ::text'):
+            self.data['tag'].append(tag.get())
+
+    def baogiaothong_crawler(self, response):
+        for title in response.css('.postTit ::text'):
+            self.data['title'] = title.get()
+        for time_publish in response.css('.dateArt ::text'):
+            self.data['time_publish'] = time_publish.get()
+        for summary in response.css('.descArt ::text'):
+            self.data['summary'] = summary.get()
+        for body in response.css('.bodyArt'):
+            self.data['body'] = body.get()
+        for author in response.css('.author .name ::text'):
+            self.data['author'] = author.get()
+
+    def saostar_crawler(self, response):
+        for title in response.css('.art-title ::text'):
+            self.data['title'] = title.get()
+        for time_publish in response.css('.time ::text'):
+            self.data['time_publish'] = time_publish.get()
+        for summary in response.css('.art-sapo ::text'):
+            self.data['summary'] = summary.get()
+        for body in response.css('.art-content'):
+            self.data['body'] = body.get()
+        # for author in response.css('.author .name ::text'):
+        #     self.data['author'] = author.get()
+
+    def kienthuc_crawler(self, response):
+        for title in response.css('.title  ::text'):
+            self.data['title'] = title.get()
+        for time_publish in response.css('.cms-date'):
+            self.data['time_publish'] = time_publish.attrib['content']
+        for summary in response.css('.summary div ::text'):
+            self.data['summary'] = summary.get()
+        for body in response.css('.topContent'):
+            self.data['body'] = body.get()
+        for author in response.css('.author::text'):
+            self.data['author'] = author.get()
+
     def __init__(self, response, domain):
 
         self.data = {
@@ -165,3 +215,9 @@ class News:
             self.baotintuc_crawler(response)
         elif domain == DomainType.BAOQUOCTE:
             self.baoquocte_crawler(response)
+        elif domain == DomainType.BAOGIAOTHONG:
+            self.baogiaothong_crawler(response)
+        elif domain == DomainType.SAOSTAR:
+            self.saostar_crawler(response)
+        elif domain == DomainType.KIENTHUC:
+            self.kienthuc_crawler(response)
