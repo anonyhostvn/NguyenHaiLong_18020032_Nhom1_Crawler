@@ -177,4 +177,4 @@
             ```
           
 ### Link dẫn tới thư mục chứa data sau khi crawl:
-> <a href="https://drive.google.com/drive/folders/1SfYuXOzDiQdMOMHVb_cJgr6QmVMVOgSa?usp=sharing"> Data_Crawled </a> 
+> <a href="https://drive.google.com/drive/folders/1SfYuXOzDiQdMOMHVb_cJgr6QmVMVOgSa?usp=sharing" target="_blank"> Data_Crawled </a> 
