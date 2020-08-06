@@ -77,13 +77,13 @@
         - File `output.json`:
              ```json
           { 
-                "total": number, // tổng số dữ liệu crawl được
+                "total": "number", // tổng số dữ liệu crawl được
                 "data": [ 
                   { 
-                    "href": string, // link tới trang .epi của baomoi,
-                    "content": string, // nội dung tóm tắt của bài báo
-                    "thumb": string, // link ảnh của bài báo
-                    "source": string // Link dẫn tới Category của bài báo         
+                    "href": "string", // link tới trang .epi của baomoi,
+                    "content": "string", // nội dung tóm tắt của bài báo
+                    "thumb": "string", // link ảnh của bài báo
+                    "source": "string" // Link dẫn tới Category của bài báo         
                   }
                ]
           }
@@ -91,12 +91,12 @@
          - File `newscrawler.json`:
              ```json
            { 
-             "title": string, // tiêu đề của bài báo
-             "author": string, // tác giả của bài báo
-             "time_publish": string, // thời gian xuất bản của bài báo
-             "summary": string, // tóm tắt bài báo 
-             "body": string, // nội dung chính của bài báo
-             "tag": [string] // tập các tag của bài báo   
+             "title": "string", // tiêu đề của bài báo
+             "author": "string", // tác giả của bài báo
+             "time_publish": "string", // thời gian xuất bản của bài báo
+             "summary": "string", // tóm tắt bài báo 
+             "body": "string", // nội dung chính của bài báo
+             "tag": ["string"] // tập các tag của bài báo   
            }
            ```
     3. Một số file phụ khác
@@ -165,7 +165,7 @@
 
 * ### Phần 2: Thu thập dữ liệu sản phẩm từ trang websosanh
     1. **Spider**:
-        - Chỉ có duy nhất 1 spider. Do cấu trúc link của websaosanh đơn giản nên ta có thể for từng id của sản phẩm để get dữ liệu. 
+        - Chỉ có duy nhất 1 spider. Do cấu trúc link của websosanh đơn giản nên ta có thể for từng id của sản phẩm để get dữ liệu. 
     2. **Định dạng dữ liệu**
         - File `product.json`:
             ```json
