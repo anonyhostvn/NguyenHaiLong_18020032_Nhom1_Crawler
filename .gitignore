@@ -1,3 +1,4 @@
 tiki/spiders/output.json
 tiki/spiders/__pycache__/*
 tiki/spiders/news_DB.json
+tiki/spiders/product.json

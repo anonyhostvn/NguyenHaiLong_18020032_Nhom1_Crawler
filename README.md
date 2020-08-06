@@ -163,4 +163,15 @@
             + Một số hàm quan trọng:
                 - `parse()`: Bóc tách source type và sử dụng module crawl dữ liệu phù hợp với từng source
 
-* ### Phần 2: Thu thập dữ liệu sản phẩm từ trang
+* ### Phần 2: Thu thập dữ liệu sản phẩm từ trang websosanh
+    1. **Spider**:
+        - Chỉ có duy nhất 1 spider. Do cấu trúc link của websaosanh đơn giản nên ta có thể for từng id của sản phẩm để get dữ liệu. 
+    2. **Định dạng dữ liệu**
+        - File `product.json`:
+            ```json
+                "title": "string", // tiêu đề của sản phẩm
+                "brand": "string", // Thương hiệu của sản phẩm
+                "desc": "string", // mô tả ngắn sản phẩm
+                "price": "number", // giá 
+                "full_desc": "string" // Mô tả đầy đủ sản phẩm định dạng HTML       
+            ```
