@@ -1,6 +1,6 @@
 # Bài tập thu thập dữ liệu với scrapy
 
-## Nhóm 1 - Bài tập tuần 2
+## Nguyễn Hải Long - 18020032 - Nhóm 1 - Bài tập tuần 2
 
 * ### Phần 1: Thu thập dữ các bài báo từ trang báo mới
     1. **Spider**
