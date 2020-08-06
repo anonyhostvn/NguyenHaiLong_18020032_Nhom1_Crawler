@@ -175,3 +175,6 @@
                 "price": "number", // giá 
                 "full_desc": "string" // Mô tả đầy đủ sản phẩm định dạng HTML       
             ```
+          
+### Link dẫn tới thư mục chứa data sau khi crawl:
+> <a href="https://drive.google.com/drive/folders/1SfYuXOzDiQdMOMHVb_cJgr6QmVMVOgSa?usp=sharing"> Data_Crawled </a> 
